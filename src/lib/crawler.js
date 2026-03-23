@@ -32,6 +32,29 @@ const FEEDS = [
   { name: 'Import AI', url: 'https://importai.substack.com/feed' },
   { name: 'Latent Space', url: 'https://latentspace.substack.com/feed' },
   { name: 'Last Week in AI', url: 'https://lastweekin.ai/feed' },
+  // Finance & Banking AI
+  { name: 'Finextra', url: 'https://www.finextra.com/rss/all_news.xml' },
+  { name: 'The Financial Brand', url: 'https://thefinancialbrand.com/feed/' },
+  { name: 'PYMNTS', url: 'https://www.pymnts.com/feed/' },
+  { name: 'American Banker', url: 'https://www.americanbanker.com/feed' },
+  // Healthcare AI
+  { name: 'STAT News', url: 'https://www.statnews.com/feed/' },
+  { name: 'Healthcare IT News', url: 'https://www.healthcareitnews.com/rss.xml' },
+  // Legal AI
+  { name: 'Law360 Technology', url: 'https://www.law360.com/rss/articles' },
+  // HR & People Ops AI
+  { name: 'HR Dive', url: 'https://www.hrdive.com/feeds/news/' },
+  { name: 'SHRM', url: 'https://www.shrm.org/rss/pages/rss.aspx' },
+  // Retail & E-commerce AI
+  { name: 'Retail Dive', url: 'https://www.retaildive.com/feeds/news/' },
+  // Government & Public Sector AI
+  { name: 'FedScoop', url: 'https://fedscoop.com/feed/' },
+  { name: 'Government Technology', url: 'https://www.govtech.com/rss/recent_articles.rss' },
+  // Manufacturing AI
+  { name: 'Manufacturing Dive', url: 'https://www.manufacturingdive.com/feeds/news/' },
+  // Education AI
+  { name: 'EdSurge', url: 'https://www.edsurge.com/news.rss' },
+  { name: 'eCampus News', url: 'https://www.ecampusnews.com/feed/' },
 ];
 
 function textOrEmpty(x) {
