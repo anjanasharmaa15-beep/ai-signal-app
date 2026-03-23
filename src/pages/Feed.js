@@ -127,8 +127,8 @@ export default function Feed({ role, industry, onOpenOnboarding }) {
       return { ...a, _roleScore: roleScore, _industryScore: industryScore };
     });
 
-    // Only keep articles strongly relevant to the role.
-    const roleFiltered = withScores.filter((a) => a._roleScore > 7);
+    // Keep articles relevant to the role (score >= 5 out of 10).
+    const roleFiltered = withScores.filter((a) => a._roleScore >= 5);
 
     const sortFn = sortBy === 'recent'
       ? (a, b) => new Date(b.pub_date) - new Date(a.pub_date)
@@ -139,12 +139,12 @@ export default function Feed({ role, industry, onOpenOnboarding }) {
       : (a, b) => b._roleScore - a._roleScore;
 
     const industrySection = roleFiltered
-      .filter((a) => a._industryScore > 7)
+      .filter((a) => a._industryScore >= 5)
       .sort(sortFn)
       .slice(0, 24);
 
     const generalSection = roleFiltered
-      .filter((a) => a._roleScore > 7 && a._industryScore <= 7)
+      .filter((a) => a._industryScore < 5)
       .sort(sortFnGeneral)
       .slice(0, 24);
 
