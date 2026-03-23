@@ -1,0 +1,334 @@
+.fPage {
+  width: 100%;
+}
+
+.fHero {
+  padding: 3.5rem 2.5rem 2rem;
+  max-width: 860px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.fHeroEyebrow {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.fHeroTitle {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.fHeroTitle em {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.fHeroDesc {
+  font-size: 0.95rem;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.65;
+}
+
+.fRoleSelector {
+  padding: 1.25rem 2.5rem;
+  border-bottom: 0.5px solid var(--border);
+  background: #f9f9f8;
+}
+
+.fRoleLabel {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.fRolePills {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fRolePill {
+  padding: 0.4rem 1rem;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.fRolePill:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+.fRolePill.active {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+.fLayout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.fSidebar {
+  padding: 2rem 1.5rem;
+  border-right: 0.5px solid var(--border);
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  overflow-y: auto;
+}
+
+.fSidebarHeading {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.fSidebarItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: 6px;
+  margin-bottom: 0.2rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.fSidebarItem:hover {
+  background: #f0efeb;
+  color: var(--ink);
+}
+
+.fSidebarItem.active {
+  background: #f0efeb;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.fContent {
+  padding: 2.5rem;
+}
+
+.fSectionIntro {
+  margin-bottom: 1.5rem;
+  scroll-margin-top: 80px;
+}
+
+.fSectionLabel {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.fSectionTitle {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+}
+
+.fSectionDesc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 600px;
+  margin-bottom: 0.5rem;
+}
+
+.fGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+/* Card */
+.fCard {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+
+.fCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--ink));
+  border-radius: 12px 12px 0 0;
+}
+
+.fCard:hover {
+  border-color: #a3a29d;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+  transform: translateY(-1px);
+}
+
+.fCardNoLink {
+  cursor: default;
+}
+
+.fCardNoLink:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--border);
+}
+
+.fCardCategory {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+}
+
+.fCardTitle {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.5rem;
+  color: var(--ink);
+}
+
+.fCardAuthor {
+  font-size: 0.78rem;
+  color: #a3a29d;
+  margin-bottom: 0.75rem;
+}
+
+.fCardSummary {
+  font-size: 0.83rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.fCardWhy {
+  font-size: 0.78rem;
+  color: #2c2c2a;
+  line-height: 1.55;
+  background: #f9f9f8;
+  border-radius: 6px;
+  padding: 0.65rem 0.75rem;
+  border-left: 2px solid var(--border);
+}
+
+.fCardWhy strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.fCardTags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.fCardTag {
+  padding: 0.15rem 0.6rem;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  background: #f0efeb;
+  color: var(--muted);
+}
+
+.fCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f0efeb;
+}
+
+.fCardSource {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.fCardRead {
+  font-size: 0.75rem;
+  color: #a3a29d;
+  transition: color 0.15s;
+}
+
+.fCard:hover .fCardRead {
+  color: var(--ink);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .fLayout {
+    grid-template-columns: 1fr;
+  }
+  .fSidebar {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .fHero {
+    padding: 2rem 1.25rem 1.5rem;
+  }
+  .fHeroTitle {
+    font-size: clamp(1.6rem, 6vw, 2rem);
+  }
+  .fRoleSelector {
+    padding: 1rem 1.25rem;
+  }
+  .fContent {
+    padding: 1.5rem 1.25rem;
+  }
+  .fGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,324 @@
+import { useState, useEffect, useRef } from 'react';
+import './Foundations.css';
+
+const ROLES = [
+  { id: 'pm', label: 'AI Product Manager' },
+  { id: 'eng', label: 'ML / AI Engineer' },
+  { id: 'research', label: 'AI Researcher' },
+  { id: 'biz', label: 'Business Leader' },
+];
+
+const ROLE_MAP = {
+  'AI Product Manager': 'pm',
+  'ML/AI Engineer': 'eng',
+  'AI Researcher': 'research',
+  'Business Leader': 'biz',
+};
+
+const FOUNDATIONS = {
+  pm: [
+    {
+      section: 'How AI Works', id: 'how-ai-works',
+      desc: "You don't need to implement these — but understanding what the foundational papers proved changes how you think about what AI can and cannot do, and why.",
+      cards: [
+        { title: "Attention Is All You Need", author: "Vaswani et al. — Google Brain, 2017", category: "Foundational Paper", accent: "#1a1a1a", summary: "The paper that introduced the Transformer architecture — the foundation of every modern LLM including GPT, Claude, and Gemini. The key insight: replacing sequential processing with parallel attention mechanisms, letting models consider all parts of an input simultaneously.", why: "When you understand that every LLM runs on attention, you start to understand why context windows matter, why the position of instructions in a prompt affects output quality, and why RAG works the way it does.", tags: ["Transformers", "Architecture", "Foundational"], source: "arXiv:1706.03762", url: "https://arxiv.org/abs/1706.03762" },
+        { title: "Language Models are Few-Shot Learners (GPT-3)", author: "Brown et al. — OpenAI, 2020", category: "Landmark Paper", accent: "#7c3aed", summary: "The GPT-3 paper showed large language models can perform new tasks from just a few examples — without fine-tuning. It introduced 'in-context learning' and changed what anyone thought was possible with LLMs.", why: "In-context learning is the mechanism behind prompting. Understanding what GPT-3 proved — that examples inside a prompt shape model behaviour — gives you a principled mental model for why prompt design and few-shot examples matter.", tags: ["GPT", "In-Context Learning", "Prompting"], source: "arXiv:2005.14165", url: "https://arxiv.org/abs/2005.14165" },
+        { title: "Scaling Laws for Neural Language Models", author: "Kaplan et al. — OpenAI, 2020", category: "Research Paper", accent: "#2563eb", summary: "Establishes that LLM performance scales predictably with compute, data, and model size — following clean power laws. The paper that made 'bigger is better' a science rather than a guess, and drove the race to larger models.", why: "Understanding scaling laws explains why frontier models keep getting more capable, how to evaluate vendor claims about model improvements, and what 'model size' actually means for the capabilities you can build on.", tags: ["Scaling", "LLMs", "Research"], source: "arXiv:2001.08361", url: "https://arxiv.org/abs/2001.08361" },
+        { title: "The Illustrated Transformer", author: "Jay Alammar", category: "Visual Explainer", accent: "#0891b2", summary: "The best visual explanation of how Transformers work — step by step, with clear diagrams. Covers self-attention, multi-head attention, positional encoding, and the encoder-decoder architecture. A universal reference for engineers and non-engineers alike.", why: "If the papers are too dense, this is the companion that makes it click. Shared universally between engineers and product people. Read it and you'll have a genuine mental model of what's happening inside the models you build products on.", tags: ["Transformers", "Visual", "Reference"], source: "jalammar.github.io", url: "https://jalammar.github.io/illustrated-transformer/" },
+      ]
+    },
+    {
+      section: 'Neuroscience & Cognitive Science', id: 'neuroscience',
+      desc: 'AI was inspired by the brain. Understanding this connection deepens your intuition for how models think, fail, and improve — and how humans will adapt to working alongside them.',
+      cards: [
+        { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", category: "Cognitive Science", accent: "#1a1a1a", summary: "Kahneman's landmark book describes two modes of human cognition: System 1 (fast, intuitive, automatic) and System 2 (slow, deliberate, effortful). Chain-of-thought prompting in AI deliberately activates an analogue of System 2 reasoning.", why: "When you prompt an LLM to reason step-by-step, you're activating System 2 behaviour. When a user over-trusts a fast AI output without checking it, that's System 1 at work. Understanding this framework makes you a more intentional product designer.", tags: ["Cognitive Science", "Reasoning", "Classic"], source: "Farrar, Straus and Giroux, 2011", url: "https://www.goodreads.com/book/show/11468377-thinking-fast-and-slow" },
+        { title: "The Society of Mind", author: "Marvin Minsky", category: "AI Philosophy", accent: "#2563eb", summary: "Minsky's 1986 theory that intelligence emerges from the interaction of many simple, specialised agents — each mindless on its own, but collectively producing complex behaviour. Now reads as a blueprint for modern multi-agent AI architectures.", why: "Remarkably prescient. Minsky's 'society of agents' maps almost directly onto multi-agent AI systems. Reading this sharpens your intuition for why agentic AI works the way it does.", tags: ["Agents", "AI Philosophy", "Foundational"], source: "Simon & Schuster, 1986", url: "https://www.goodreads.com/book/show/326790.The_Society_of_Mind" },
+        { title: "Chain-of-Thought Prompting Elicits Reasoning in LLMs", author: "Wei et al. — Google Brain, 2022", category: "Research Paper", accent: "#16a34a", summary: "The paper that established chain-of-thought prompting — showing that asking LLMs to reason step by step dramatically improves performance on complex tasks. The analogy: asking a human to show their work rather than just give the answer.", why: "Chain-of-thought is now a foundational prompting technique used everywhere. Understanding the research behind it — why it works, what tasks benefit most, where it fails — makes you a better evaluator and designer of AI-powered features.", tags: ["Chain-of-Thought", "Reasoning", "Prompting"], source: "arXiv:2201.11903", url: "https://arxiv.org/abs/2201.11903" },
+        { title: "Neurological Levels of Change", author: "Robert Dilts", category: "Behavioural Framework", accent: "#dc2626", summary: "A hierarchical model from NLP explaining why change efforts succeed or fail. Change at the identity level (who I am) is more durable than change at the environment level (what surrounds me). Most AI adoption fails because it targets behaviour without addressing belief and identity.", why: "When your enterprise AI rollout stalls, it's rarely a tool problem — it's a belief problem. Users don't see themselves as 'AI users'. This framework diagnoses where resistance is coming from and helps you design enablement that actually sticks.", tags: ["Adoption", "Change Management", "NLP"], source: "Dilts Strategy Group / NLP", url: "https://dilts.com/neurological-levels/" },
+      ]
+    },
+    {
+      section: 'Behaviour & Change', id: 'behaviour',
+      desc: 'Frameworks for understanding how people adopt, resist, and adapt to new technology — essential for AI PMs driving enterprise adoption.',
+      cards: [
+        { title: "Diffusion of Innovations", author: "Everett Rogers", category: "Adoption Framework", accent: "#2563eb", summary: "The classic model explaining how new ideas spread through populations — from innovators to laggards. Defines the chasm between early adopters and the early majority that kills most new technologies.", why: "Every AI product you build will face this curve. Understanding where your users sit on it — and designing features that help early adopters demonstrate value to the majority — is a core AI PM skill.", tags: ["Adoption", "GTM", "Product Strategy"], source: "Free Press, 1962", url: "https://en.wikipedia.org/wiki/Diffusion_of_innovations" },
+        { title: "ReAct: Synergizing Reasoning and Acting in Language Models", author: "Yao et al. — Princeton / Google, 2023", category: "Research Paper", accent: "#0891b2", summary: "Introduces ReAct — a prompting framework that interleaves reasoning traces and action steps in LLMs. The basis for how modern AI agents think-then-act in loops. Heavily cited in agentic AI product design.", why: "If you're building or evaluating agentic AI features — anything where the AI takes sequential actions — understanding ReAct gives you the framework to spec, test, and reason about agent behaviour with your engineering team.", tags: ["Agents", "Reasoning", "Agentic AI"], source: "arXiv:2210.03629", url: "https://arxiv.org/abs/2210.03629" },
+      ]
+    },
+    {
+      section: 'Prompting & AI Interaction', id: 'prompting',
+      desc: 'How to get the most out of AI systems — and how to teach others to do the same. Foundational for any PM working on or with AI products.',
+      cards: [
+        { title: "Anthropic Prompt Engineering Guide", author: "Anthropic", category: "Official Reference", accent: "#d97706", summary: "Anthropic's comprehensive guide to prompting Claude effectively. Covers prompt structure, role-setting, chain-of-thought reasoning, XML tags for structure, and handling edge cases. The authoritative reference for working with Claude models.", why: "If you're a PM building on or demoing Claude, this is required reading. Understanding how prompting works makes you a better product designer, a better evaluator of outputs, and more credible with your engineering team.", tags: ["Prompting", "Claude", "Reference"], source: "docs.anthropic.com", url: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" },
+        { title: "26 Prompt Principles for LLMs", author: "Bsharat et al. (arXiv)", category: "Research Paper", accent: "#7c3aed", summary: "A research paper distilling 26 actionable principles for prompting large language models effectively. Covers clarity, specificity, persona assignment, step-by-step reasoning, and avoiding common failure modes. Empirically tested across multiple models.", why: "A practical reference you can share with your team, use in enablement workshops, and apply directly when writing system prompts for your AI product. Bridges research and practice cleanly.", tags: ["Prompting", "Research", "Practical"], source: "arXiv:2312.16171", url: "https://arxiv.org/abs/2312.16171" },
+        { title: "Tree of Thoughts: Deliberate Problem Solving with LLMs", author: "Yao et al. — Princeton, 2023", category: "Research Paper", accent: "#16a34a", summary: "Extends chain-of-thought prompting to explore multiple reasoning paths simultaneously — like a tree rather than a line. LLMs can now evaluate intermediate steps and backtrack, approaching deliberate human problem-solving.", why: "Tree of Thoughts represents a new category of AI reasoning capability. As a PM, knowing this exists changes how you spec AI features for complex, multi-step problems — and helps you evaluate vendor claims about 'reasoning models'.", tags: ["Reasoning", "Prompting", "Advanced"], source: "arXiv:2305.10601", url: "https://arxiv.org/abs/2305.10601" },
+        { title: "Model Context Protocol (MCP) — Specification", author: "Anthropic", category: "Technical Standard", accent: "#0891b2", summary: "The open standard that defines how AI models connect to external tools, data sources, and services. MCP is becoming the infrastructure layer of the agentic AI ecosystem — the USB-C of AI tool integration.", why: "As an AI PM, you don't need to implement MCP — but you need to understand what it is, why it matters, and how it changes what's possible for your product. This is the foundational read for anyone building agentic features.", tags: ["MCP", "Agentic AI", "Infrastructure"], source: "modelcontextprotocol.io", url: "https://modelcontextprotocol.io" },
+      ]
+    },
+    {
+      section: 'Product Thinking', id: 'product',
+      desc: 'Core product management frameworks — applied specifically to AI product contexts.',
+      cards: [
+        { title: "Inspired: How to Create Tech Products Customers Love", author: "Marty Cagan", category: "Product Management", accent: "#16a34a", summary: "The definitive PM book. Covers continuous discovery, outcome vs. output thinking, the role of product vision, and how great product teams work. Cagan's framework for what separates strong PMs from weak ones is as relevant for AI products as any other.", why: "The discovery mindset Cagan describes — continuous user contact, hypothesis-driven roadmaps, outcome focus — is especially critical for AI products where the technology is new and user behaviour is still forming.", tags: ["Product Discovery", "Roadmap", "Classic"], source: "Wiley, 2017", url: "https://www.svpg.com/inspired-how-to-create-products-customers-love/" },
+        { title: "Jobs To Be Done Framework", author: "Clayton Christensen", category: "Product Framework", accent: "#dc2626", summary: "Users don't buy products — they hire them to do a job. JTBD reframes product design around the outcome the user wants, not the feature they're asking for. Especially powerful for AI products where the 'job' is often poorly defined.", why: "When a user asks for 'a better search', the job might actually be 'help me look credible in the meeting'. AI products that understand the real job — not the stated request — are the ones that create genuine value.", tags: ["Discovery", "User Research", "Strategy"], source: "Harvard Business Review", url: "https://hbr.org/2016/09/know-your-customers-jobs-to-be-done" },
+        { title: "Shape of AI — UX Patterns for AI Products", author: "Emily Campbell", category: "Design Reference", accent: "#1a1a1a", summary: "A living library of UX patterns specific to AI product design — Wayfinders, Governors, Trust Builders, Identifiers, and more. Documents how leading AI products handle prompting, transparency, human-in-the-loop, and onboarding.", why: "When you're designing features for an AI product, you don't have to start from scratch. This library is your reference for what good AI UX looks like, with real examples from Claude, Notion AI, Copilot, and others.", tags: ["UX Design", "AI Products", "Reference"], source: "shapeof.ai", url: "https://www.shapeof.ai" },
+      ]
+    },
+    {
+      section: 'AI Strategy', id: 'strategy',
+      desc: 'How to think about AI at a strategic level — for PMs shaping roadmaps and influencing organisational direction.',
+      cards: [
+        { title: "AI Canon — Essential AI Reading List", author: "Andreessen Horowitz (a16z)", category: "Curated Reading List", accent: "#1a1a1a", summary: "A16z's curated list of the most important papers, blog posts, and resources for understanding modern AI — from transformers to diffusion models to large language models. Organised by topic and depth.", why: "As a PM, you don't need to read every paper — but knowing which papers matter and why gives you credibility with researchers and engineers, and sharpens your intuition for what's technically possible.", tags: ["AI Fundamentals", "Strategy", "Reading List"], source: "a16z.com", url: "https://a16z.com/ai-canon" },
+        { title: "Anthropic's Core Views on AI Safety and Development", author: "Anthropic", category: "Company Philosophy", accent: "#d97706", summary: "Anthropic's public articulation of how they think about AI safety, capability development, and the responsible path to powerful AI. Covers Constitutional AI, RLHF, and the reasoning behind their research priorities.", why: "If you're building enterprise AI products, customers will ask you about safety, bias, and responsible AI. Understanding how the leading labs think about these questions makes you a more informed PM and a better advocate for your users.", tags: ["AI Safety", "Ethics", "Anthropic"], source: "Anthropic", url: "https://www.anthropic.com/company" },
+      ]
+    },
+    {
+      section: 'Ethics & Safety', id: 'ethics',
+      desc: 'The ethical and safety dimensions of AI that every PM building in this space needs to understand.',
+      cards: [
+        { title: "EU AI Act — What Product Managers Need to Know", author: "European Parliament", category: "Regulation", accent: "#1d4ed8", summary: "The world's first comprehensive AI regulation framework, classifying AI systems by risk level and imposing requirements on high-risk applications. Came into force in 2024 with phased implementation through 2027.", why: "If your product touches EU customers, this is not optional reading. Understanding the risk tiers, prohibited practices, and documentation requirements will shape your roadmap and your enterprise sales conversations.", tags: ["Regulation", "Compliance", "Europe"], source: "European Parliament, 2024", url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689" },
+        { title: "Anthropic's Responsible Scaling Policy", author: "Anthropic", category: "Safety Framework", accent: "#7c3aed", summary: "Anthropic's commitment to evaluate AI capabilities at each stage of development and apply safety measures before scaling further. Introduces the concept of AI Safety Levels (ASL) as a framework for responsible deployment.", why: "Understanding how frontier labs self-regulate helps you anticipate what capabilities will and won't be available to build on — and gives you vocabulary for conversations about AI risk with enterprise customers and executives.", tags: ["AI Safety", "Policy", "Anthropic"], source: "Anthropic", url: "https://www.anthropic.com/responsible-scaling-policy" },
+      ]
+    },
+  ],
+
+  eng: [
+    {
+      section: 'How AI Works', id: 'how-ai-works',
+      desc: 'The foundational papers every ML/AI engineer should have read — not just know about.',
+      cards: [
+        { title: "Attention Is All You Need", author: "Vaswani et al. — Google Brain, 2017", category: "Foundational Paper", accent: "#1a1a1a", summary: "The 2017 paper that introduced the Transformer architecture. If you work with language models and haven't read the original paper, this is the gap to close. Covers self-attention, multi-head attention, positional encoding, and the encoder-decoder architecture.", why: "Understanding the attention mechanism at a deep level makes you a better engineer when debugging model behaviour, evaluating architecture choices, and reasoning about context window limitations.", tags: ["Transformers", "Architecture", "Foundational"], source: "arXiv:1706.03762", url: "https://arxiv.org/abs/1706.03762" },
+        { title: "The Illustrated Transformer", author: "Jay Alammar", category: "Visual Explainer", accent: "#2563eb", summary: "The best visual explanation of how Transformers work — step by step, with clear diagrams. Covers self-attention, multi-head attention, positional encoding, and the encoder-decoder architecture.", why: "If the original paper is dense, this is the companion piece that makes it click. Used universally as a reference by engineers and researchers.", tags: ["Transformers", "Visual", "Reference"], source: "jalammar.github.io", url: "https://jalammar.github.io/illustrated-transformer/" },
+        { title: "Scaling Laws for Neural Language Models", author: "Kaplan et al. — OpenAI, 2020", category: "Research Paper", accent: "#7c3aed", summary: "Establishes clean power-law relationships between model performance and scale (compute, parameters, data). The paper that quantified 'bigger is better' and informed the architecture decisions behind GPT-3 and beyond.", why: "Essential context for any engineer making decisions about model selection, fine-tuning vs prompting, and infrastructure costs. Helps you reason about capability jumps and diminishing returns.", tags: ["Scaling", "Architecture", "Research"], source: "arXiv:2001.08361", url: "https://arxiv.org/abs/2001.08361" },
+        { title: "FlashAttention: Fast and Memory-Efficient Attention", author: "Dao et al. — Stanford, 2022", category: "Systems Paper", accent: "#dc2626", summary: "An IO-aware exact attention algorithm that is 2-4x faster and uses up to 10x less memory than standard attention. Now the de facto standard for efficient transformer training and inference.", why: "If you're training, fine-tuning, or running inference at scale, FlashAttention is likely already in your stack. Understanding what it does and why it works helps you make better infrastructure and batching decisions.", tags: ["Efficiency", "Attention", "Systems"], source: "arXiv:2205.14135", url: "https://arxiv.org/abs/2205.14135" },
+      ]
+    },
+    {
+      section: 'Neuroscience & Cognitive Science', id: 'neuroscience',
+      desc: 'The biological and cognitive roots of modern AI — understanding these deepens your intuition for why architectures work the way they do.',
+      cards: [
+        { title: "Chain-of-Thought Prompting Elicits Reasoning in LLMs", author: "Wei et al. — Google Brain, 2022", category: "Research Paper", accent: "#16a34a", summary: "Establishes that asking LLMs to reason step-by-step dramatically improves performance on complex tasks. Connects to cognitive science research on deliberate vs automatic reasoning.", why: "Beyond prompting — understanding why chain-of-thought works at a mechanistic level helps you design better evaluation frameworks and reasoning pipelines in your systems.", tags: ["Chain-of-Thought", "Reasoning", "Prompting"], source: "arXiv:2201.11903", url: "https://arxiv.org/abs/2201.11903" },
+        { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", category: "Cognitive Science", accent: "#1a1a1a", summary: "Kahneman's two-system model of human cognition: System 1 (fast, automatic) and System 2 (slow, deliberate). The distinction maps surprisingly well onto fast LLM inference vs chain-of-thought and tree-of-thoughts reasoning.", why: "Gives you a vocabulary and mental model for reasoning about different AI inference modes, and why some tasks require deliberate multi-step reasoning rather than single-pass generation.", tags: ["Cognitive Science", "Reasoning", "Classic"], source: "Farrar, Straus and Giroux, 2011", url: "https://www.goodreads.com/book/show/11468377-thinking-fast-and-slow" },
+        { title: "Neurological Levels of Change", author: "Robert Dilts", category: "Behavioural Framework", accent: "#0891b2", summary: "A hierarchical model from NLP connecting environment, behaviour, capabilities, beliefs, identity, and purpose. Surprisingly applicable when thinking about alignment and model behaviour.", why: "Useful when thinking about alignment: why fine-tuning changes surface output but not deeper values, and how constitutional training operates at the identity/values level.", tags: ["NLP", "Behaviour", "Frameworks"], source: "Dilts Strategy Group", url: "https://dilts.com/neurological-levels/" },
+      ]
+    },
+    {
+      section: 'Core ML Foundations', id: 'behaviour',
+      desc: 'Additional papers and resources every ML engineer should have read.',
+      cards: [
+        { title: "Constitutional AI: Harmlessness from AI Feedback", author: "Anthropic, 2022", category: "Alignment Paper", accent: "#d97706", summary: "Introduces Constitutional AI — a method for training AI systems to be helpful, harmless, and honest using AI feedback rather than human labels alone. The basis for how Claude is trained.", why: "Understanding Constitutional AI is essential context for any engineer fine-tuning or aligning models. The critique-revision loop it introduces is now a standard alignment technique.", tags: ["Alignment", "RLHF", "Safety"], source: "arXiv:2212.08073", url: "https://arxiv.org/abs/2212.08073" },
+        { title: "ReAct: Synergizing Reasoning and Acting in Language Models", author: "Yao et al. — Princeton / Google, 2023", category: "Research Paper", accent: "#7c3aed", summary: "Introduces the ReAct prompting framework that interleaves reasoning traces and actions in LLMs, enabling them to think-then-act in loops. The foundation of modern agent architectures.", why: "If you're building agentic systems, ReAct is the pattern you're almost certainly implementing. Read the original paper to understand the guarantees, limitations, and evaluation methodology.", tags: ["Agents", "Reasoning", "Agentic AI"], source: "arXiv:2210.03629", url: "https://arxiv.org/abs/2210.03629" },
+      ]
+    },
+    {
+      section: 'Prompting & AI Interaction', id: 'prompting',
+      desc: 'How to work with LLMs effectively at an implementation level.',
+      cards: [
+        { title: "Anthropic Prompt Engineering Guide", author: "Anthropic", category: "Official Reference", accent: "#d97706", summary: "The authoritative guide to prompting Claude — covering system prompts, role-setting, XML structure, chain-of-thought, and tool use. Essential for engineers building on Claude API.", why: "Knowing how to write effective system prompts is as important as knowing how to write clean code when building LLM-powered features. This is the reference.", tags: ["Prompting", "Claude", "API"], source: "docs.anthropic.com", url: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" },
+        { title: "26 Prompt Principles for LLMs", author: "Bsharat et al.", category: "Research Paper", accent: "#7c3aed", summary: "Empirically tested principles for prompting LLMs. 26 principles derived from systematic experimentation across multiple frontier models — with quantified performance improvements.", why: "A rigorous empirical reference for system prompt design. Use it to benchmark your prompting approach and justify prompt engineering decisions to your team.", tags: ["Prompting", "Empirical", "Research"], source: "arXiv:2312.16171", url: "https://arxiv.org/abs/2312.16171" },
+      ]
+    },
+    {
+      section: 'Production Engineering', id: 'product',
+      desc: 'Engineering foundations for building reliable, production-grade AI systems.',
+      cards: [
+        { title: "Building LLM Applications for Production", author: "Chip Huyen", category: "Engineering Guide", accent: "#16a34a", summary: "A comprehensive guide to the challenges of moving LLM applications from prototype to production — covering hallucination, latency, cost, evaluation, and deployment patterns.", why: "The gap between a demo and a production system is enormous for LLM apps. This is the most practical engineering guide for crossing that gap.", tags: ["Production", "LLMOps", "Engineering"], source: "huyenchip.com", url: "https://huyenchip.com/2023/04/11/llm-engineering.html" },
+      ]
+    },
+  ],
+
+  research: [
+    {
+      section: 'How AI Works', id: 'how-ai-works',
+      desc: 'The canonical papers that shaped modern AI research — your shared language with any AI researcher.',
+      cards: [
+        { title: "Attention Is All You Need", author: "Vaswani et al. — Google Brain, 2017", category: "Foundational Paper", accent: "#1a1a1a", summary: "The Transformer paper. Every modern LLM is a descendant of this architecture. The self-attention mechanism it introduced has become the dominant computational primitive in deep learning.", why: "The reference architecture for understanding everything that comes after. If you're publishing in AI/NLP, this is assumed knowledge.", tags: ["Transformers", "Architecture", "Foundational"], source: "arXiv:1706.03762", url: "https://arxiv.org/abs/1706.03762" },
+        { title: "Scaling Laws for Neural Language Models", author: "Kaplan et al. — OpenAI, 2020", category: "Research Paper", accent: "#2563eb", summary: "Establishes clean power-law scaling relationships between model performance and compute, parameters, and data. Chinchilla (Hoffmann et al., 2022) subsequently updated the compute-optimal ratios.", why: "The foundational empirical result that drives modern LLM training decisions. Required reading alongside the Chinchilla paper for understanding how compute budgets translate to capabilities.", tags: ["Scaling", "Empirical", "Foundational"], source: "arXiv:2001.08361", url: "https://arxiv.org/abs/2001.08361" },
+        { title: "Chain-of-Thought Prompting Elicits Reasoning in LLMs", author: "Wei et al. — Google Brain, 2022", category: "Research Paper", accent: "#16a34a", summary: "Shows that chain-of-thought prompting dramatically improves LLM performance on reasoning tasks across arithmetic, commonsense, and symbolic reasoning benchmarks.", why: "Highly cited, reproducible, and foundational for the reasoning capabilities literature. The methodology is also a useful template for evaluation design.", tags: ["Chain-of-Thought", "Reasoning", "Evaluation"], source: "arXiv:2201.11903", url: "https://arxiv.org/abs/2201.11903" },
+        { title: "Tree of Thoughts: Deliberate Problem Solving with LLMs", author: "Yao et al. — Princeton, 2023", category: "Research Paper", accent: "#7c3aed", summary: "Extends chain-of-thought to a tree search framework, allowing LLMs to explore, evaluate, and backtrack across multiple reasoning paths — approaching deliberate human problem solving.", why: "A significant advance in reasoning capabilities and a useful framework for thinking about search-based inference-time compute. Highly relevant for any work on complex task completion.", tags: ["Reasoning", "Search", "Advanced"], source: "arXiv:2305.10601", url: "https://arxiv.org/abs/2305.10601" },
+      ]
+    },
+    {
+      section: 'Neuroscience & Cognitive Science', id: 'neuroscience',
+      desc: 'The intersection of biological intelligence and artificial intelligence — a productive source of research hypotheses.',
+      cards: [
+        { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", category: "Cognitive Science", accent: "#1a1a1a", summary: "System 1 vs System 2 cognition. The dual-process theory maps usefully onto current debates about fast token generation vs deliberate inference-time reasoning in LLMs.", why: "Provides a rich conceptual vocabulary for framing research on LLM reasoning, metacognition, and self-correction. Widely cited in alignment and interpretability research.", tags: ["Cognitive Science", "Reasoning", "Reference"], source: "Farrar, Straus and Giroux, 2011", url: "https://www.goodreads.com/book/show/11468377-thinking-fast-and-slow" },
+        { title: "The Society of Mind", author: "Marvin Minsky", category: "AI Philosophy", accent: "#2563eb", summary: "Minsky's 1986 theory of intelligence as emergent from interacting specialised agents. A surprisingly accurate description of what multi-agent AI architectures have become.", why: "Useful historical and theoretical context for multi-agent research. Many current multi-agent frameworks independently rediscovered ideas Minsky formalised 40 years ago.", tags: ["Agents", "Cognitive Architecture", "Foundational"], source: "Simon & Schuster, 1986", url: "https://www.goodreads.com/book/show/326790.The_Society_of_Mind" },
+      ]
+    },
+    {
+      section: 'Prompting & AI Interaction', id: 'prompting',
+      desc: 'Core research on how models process and respond to instructions.',
+      cards: [
+        { title: "26 Prompt Principles for LLMs", author: "Bsharat et al.", category: "Research Paper", accent: "#7c3aed", summary: "Empirically tested principles for prompting LLMs effectively. 26 principles derived from systematic experimentation across multiple frontier models.", why: "A rigorous empirical baseline for prompt design research. Useful as a reference and as a starting point for further experimentation.", tags: ["Prompting", "Empirical", "Research"], source: "arXiv:2312.16171", url: "https://arxiv.org/abs/2312.16171" },
+        { title: "ReAct: Synergizing Reasoning and Acting in Language Models", author: "Yao et al. — Princeton / Google, 2023", category: "Research Paper", accent: "#dc2626", summary: "The ReAct framework for interleaving reasoning traces and actions, enabling LLMs to think-then-act. Foundational for agentic AI research and evaluation.", why: "The baseline paper for evaluating agent architectures. Essential to read before conducting research on tool-using agents or multi-step task completion.", tags: ["Agents", "Reasoning", "Agentic AI"], source: "arXiv:2210.03629", url: "https://arxiv.org/abs/2210.03629" },
+      ]
+    },
+    {
+      section: 'Ethics & Safety', id: 'ethics',
+      desc: 'The safety research every AI researcher should be familiar with.',
+      cards: [
+        { title: "Constitutional AI: Harmlessness from AI Feedback", author: "Anthropic, 2022", category: "Research Paper", accent: "#d97706", summary: "Introduces Constitutional AI — a method for training AI systems to be helpful, harmless, and honest using AI feedback rather than human labels alone. Foundational for understanding RLHF variants.", why: "The most influential safety alignment paper of the current era. Understanding Constitutional AI is essential context for any researcher working on alignment, evaluation, or deployment of large models.", tags: ["Alignment", "Safety", "RLHF", "Anthropic"], source: "arXiv:2212.08073", url: "https://arxiv.org/abs/2212.08073" },
+        { title: "Anthropic's Responsible Scaling Policy", author: "Anthropic", category: "Safety Framework", accent: "#7c3aed", summary: "Introduces AI Safety Levels (ASL) as a framework for responsible deployment, committing to capability evaluation before each scaling step.", why: "A concrete, published safety framework from a frontier lab — rare and valuable as a research reference for operationalising alignment and deployment risk.", tags: ["AI Safety", "Policy", "Deployment"], source: "Anthropic", url: "https://www.anthropic.com/responsible-scaling-policy" },
+      ]
+    },
+  ],
+
+  biz: [
+    {
+      section: 'How AI Works', id: 'how-ai-works',
+      desc: 'What every business leader needs to understand about how AI actually works — not to build it, but to lead organisations that use it well.',
+      cards: [
+        { title: "The Illustrated Transformer", author: "Jay Alammar", category: "Visual Explainer", accent: "#1a1a1a", summary: "The clearest visual explanation of how modern AI language models work — step by step, with clear diagrams. No coding required to follow. Covers attention, context, and how models generate text.", why: "Business leaders who understand what a context window is, how attention works, and why 'bigger models' doesn't always mean 'better' make better AI investment decisions and have more credible conversations with technical teams.", tags: ["Transformers", "Visual", "Accessible"], source: "jalammar.github.io", url: "https://jalammar.github.io/illustrated-transformer/" },
+        { title: "Scaling Laws for Neural Language Models", author: "Kaplan et al. — OpenAI, 2020", category: "Research Paper", accent: "#2563eb", summary: "Establishes that AI performance scales predictably with investment in compute, data, and model size. The paper that underpins every major frontier AI investment decision.", why: "Understanding scaling laws helps you evaluate vendor claims, set realistic expectations for AI investments, and understand why frontier AI labs are raising billions — and whether it's justified.", tags: ["Scaling", "Strategy", "Investment"], source: "arXiv:2001.08361", url: "https://arxiv.org/abs/2001.08361" },
+        { title: "Chain-of-Thought Prompting Elicits Reasoning in LLMs", author: "Wei et al. — Google Brain, 2022", category: "Research Paper", accent: "#16a34a", summary: "The paper showing that asking AI to 'think step by step' dramatically improves its performance on complex problems — a simple technique with profound implications for how AI is deployed in business contexts.", why: "This is why your AI tools perform better when given structured prompts. Understanding why changes how you design AI policies, procurement requirements, and training for your organisation.", tags: ["Reasoning", "Prompting", "Practical"], source: "arXiv:2201.11903", url: "https://arxiv.org/abs/2201.11903" },
+      ]
+    },
+    {
+      section: 'Neuroscience & Cognitive Science', id: 'neuroscience',
+      desc: 'Understanding how humans and AI both reason — essential for leaders designing human-AI collaboration at scale.',
+      cards: [
+        { title: "Thinking, Fast and Slow", author: "Daniel Kahneman", category: "Cognitive Science", accent: "#1a1a1a", summary: "The definitive book on human decision-making: how we think quickly and automatically (System 1) vs slowly and deliberately (System 2). Essential for designing workflows where humans and AI collaborate on high-stakes decisions.", why: "Over-reliance on AI outputs is a System 1 failure — fast, uncritical acceptance. Designing AI systems that trigger appropriate System 2 review is one of the most important organisational challenges you face.", tags: ["Decision Making", "Cognitive Science", "Leadership"], source: "Farrar, Straus and Giroux, 2011", url: "https://www.goodreads.com/book/show/11468377-thinking-fast-and-slow" },
+        { title: "Neurological Levels of Change", author: "Robert Dilts", category: "Behavioural Framework", accent: "#dc2626", summary: "A hierarchical model explaining why transformation efforts fail or succeed. Change at the identity level (who we are as a company) is far more durable than change at the behaviour or environment level.", why: "Most AI transformation programmes fail not because the tools are wrong but because leaders try to change behaviour without changing culture and identity. This framework diagnoses exactly where your transformation is stuck.", tags: ["Change Management", "Leadership", "Transformation"], source: "Dilts Strategy Group / NLP", url: "https://dilts.com/neurological-levels/" },
+        { title: "The Society of Mind", author: "Marvin Minsky", category: "AI Philosophy", accent: "#2563eb", summary: "Intelligence emerges from the interaction of many simple, specialised agents. A 1986 insight that now describes modern agentic AI architectures with remarkable accuracy.", why: "Gives you a durable conceptual model for understanding agentic AI systems — and why the future of enterprise AI is orchestrated networks of specialised agents rather than single general-purpose models.", tags: ["Agents", "Strategy", "AI Philosophy"], source: "Simon & Schuster, 1986", url: "https://www.goodreads.com/book/show/326790.The_Society_of_Mind" },
+      ]
+    },
+    {
+      section: 'Behaviour & Change', id: 'behaviour',
+      desc: 'Frameworks for leading AI transformation at an organisational level.',
+      cards: [
+        { title: "Diffusion of Innovations", author: "Everett Rogers", category: "Adoption Framework", accent: "#2563eb", summary: "The classic model explaining how new ideas spread through populations — from innovators to laggards. Defines the chasm between early adopters and the early majority that kills most new technologies.", why: "Every AI initiative you run will face this adoption curve. Understanding it helps you sequence rollouts, identify AI champions, and design programs that cross the chasm from pilot to organisation-wide adoption.", tags: ["Adoption", "Change Management", "Leadership"], source: "Free Press, 1962", url: "https://en.wikipedia.org/wiki/Diffusion_of_innovations" },
+      ]
+    },
+    {
+      section: 'AI Strategy', id: 'strategy',
+      desc: 'How business leaders should think about AI investment and competitive positioning.',
+      cards: [
+        { title: "BCG AI Maturity Model", author: "Boston Consulting Group", category: "Strategy Framework", accent: "#1d4ed8", summary: "BCG's framework for assessing how mature an organisation's AI capabilities are — from ad hoc experimentation to fully integrated AI-first operations. Used by C-suite leaders to benchmark and plan AI investment.", why: "Gives you a common language for discussing AI maturity with your board, your investors, and your leadership team. Essential for setting realistic expectations and sequencing your AI investments correctly.", tags: ["Strategy", "Maturity", "Executive"], source: "BCG", url: "https://www.bcg.com/capabilities/digital-technology-data/artificial-intelligence" },
+        { title: "Anthropic's Core Views on AI Safety and Development", author: "Anthropic", category: "Company Philosophy", accent: "#d97706", summary: "Anthropic's public articulation of how they think about AI safety, capability development, and the responsible path to powerful AI.", why: "Understanding how frontier labs think about risk helps you make better vendor selection decisions and have more informed conversations about AI governance with your board and regulators.", tags: ["AI Safety", "Strategy", "Governance"], source: "Anthropic", url: "https://www.anthropic.com/company" },
+        { title: "AI Canon — Essential AI Reading List", author: "Andreessen Horowitz (a16z)", category: "Curated Reading List", accent: "#1a1a1a", summary: "A16z's curated list of the most important papers, blog posts, and resources for understanding modern AI — organised by topic and depth.", why: "A trusted shortlist for business leaders who want to go deeper without reading everything. Gives you credibility in technical conversations and a foundation for strategic AI thinking.", tags: ["Reading List", "Strategy", "Foundation"], source: "a16z.com", url: "https://a16z.com/ai-canon" },
+      ]
+    },
+    {
+      section: 'Ethics & Safety', id: 'ethics',
+      desc: 'The governance and safety dimensions every business leader needs to understand.',
+      cards: [
+        { title: "EU AI Act — What Business Leaders Need to Know", author: "European Parliament", category: "Regulation", accent: "#1d4ed8", summary: "The world's first comprehensive AI regulation framework, classifying AI systems by risk and imposing requirements on high-risk applications. Phased implementation through 2027.", why: "If your products or operations touch EU customers, this shapes your AI roadmap. Non-compliance risks are reputational and financial. Your legal and product teams need executive sponsorship to navigate this.", tags: ["Regulation", "Compliance", "Governance"], source: "European Parliament, 2024", url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX%3A32024R1689" },
+      ]
+    },
+  ],
+};
+
+function FoundationCard({ card }) {
+  const hasUrl = card.url && card.url !== '#';
+  const Tag = hasUrl ? 'a' : 'div';
+  const props = hasUrl
+    ? { href: card.url, target: '_blank', rel: 'noopener noreferrer' }
+    : {};
+
+  return (
+    <Tag
+      className={`fCard${hasUrl ? '' : ' fCardNoLink'}`}
+      style={{ '--card-accent': card.accent }}
+      {...props}
+    >
+      <div className="fCardCategory">{card.category}</div>
+      <div className="fCardTitle">{card.title}</div>
+      <div className="fCardAuthor">— {card.author}</div>
+      <div className="fCardSummary">{card.summary}</div>
+      <div className="fCardWhy"><strong>Why this matters for you:</strong> {card.why}</div>
+      <div className="fCardTags">
+        {card.tags.map(t => <span key={t} className="fCardTag">{t}</span>)}
+      </div>
+      <div className="fCardFooter">
+        <span className="fCardSource">{card.source}</span>
+        {hasUrl
+          ? <span className="fCardRead">Read →</span>
+          : <span className="fCardRead" style={{ color: '#e4e3de' }}>—</span>}
+      </div>
+    </Tag>
+  );
+}
+
+export default function Foundations({ role }) {
+  const initialRole = ROLE_MAP[role] || 'pm';
+  const [activeRole, setActiveRole] = useState(initialRole);
+  const [activeSectionId, setActiveSectionId] = useState(null);
+  const contentRef = useRef(null);
+
+  const sections = (FOUNDATIONS[activeRole] || []).filter(s => s.cards && s.cards.length > 0);
+
+  useEffect(() => {
+    if (sections.length > 0) setActiveSectionId(sections[0].id);
+  }, [activeRole]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function scrollToSection(id) {
+    setActiveSectionId(id);
+    requestAnimationFrame(() => {
+      const el = document.getElementById('fsec-' + id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  return (
+    <div className="fPage">
+      {/* Hero */}
+      <div className="fHero">
+        <div className="fHeroEyebrow">Foundations</div>
+        <h1 className="fHeroTitle">The canon for<br /><em>your role in AI.</em></h1>
+        <p className="fHeroDesc">Not news. Not tutorials. The timeless frameworks, papers, and principles every AI professional in your role should know deeply — curated by AI, filtered by role.</p>
+      </div>
+
+      {/* Role selector */}
+      <div className="fRoleSelector">
+        <div className="fRoleLabel">Viewing as</div>
+        <div className="fRolePills">
+          {ROLES.map(r => (
+            <button
+              key={r.id}
+              className={`fRolePill${activeRole === r.id ? ' active' : ''}`}
+              onClick={() => setActiveRole(r.id)}
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main layout */}
+      <div className="fLayout">
+        {/* Sidebar */}
+        <aside className="fSidebar">
+          <div className="fSidebarHeading">On this page</div>
+          {sections.map((s, i) => (
+            <button
+              key={s.id}
+              className={`fSidebarItem${activeSectionId === s.id ? ' active' : ''}`}
+              onClick={() => scrollToSection(s.id)}
+            >
+              {s.section}
+            </button>
+          ))}
+        </aside>
+
+        {/* Content */}
+        <div className="fContent" ref={contentRef}>
+          {sections.map(section => (
+            <div key={section.id}>
+              <div className="fSectionIntro" id={'fsec-' + section.id}>
+                <div className="fSectionLabel">Foundations · {section.section}</div>
+                <div className="fSectionTitle">{section.section}</div>
+                {section.desc && <div className="fSectionDesc">{section.desc}</div>}
+              </div>
+              <div className="fGrid">
+                {section.cards.map(card => (
+                  <FoundationCard key={card.title} card={card} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
